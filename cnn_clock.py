@@ -14,15 +14,15 @@ import numpy as np
 
 import imageio
 X = [
-    imageio.imread('data/180.jpg')[:, :, :3],
-    imageio.imread('data/240.jpg')[:, :, :3],
+    imageio.imread('clocks/%s.jpg' % (i + 1))[:, :, :3]
+    for i in range(719)
 ]
 
 X = np.array(X)
 
 Y = [
-    [ 1 if i == 180 else 0 for i in range(720) ],
-    [ 1 if i == 240 else 0 for i in range(720) ],
+    [ 1 if i == j else 0 for i in range(720) ]
+    for j in range(720)
 ]
 
 Y = np.array(Y)
@@ -44,7 +44,7 @@ testY = [
 testY = np.array(testY)
 
 # Building convolutional network
-network = input_data(shape=[None, 300, 300, 3], name='input')
+network = input_data(shape=[None, 128, 128, 3], name='input')
 network = conv_2d(network, 32, 3, activation='relu', regularizer="L2")
 network = max_pool_2d(network, 2)
 network = local_response_normalization(network)
@@ -63,4 +63,4 @@ network = regression(network, optimizer='adam', learning_rate=0.01,
 model = tflearn.DNN(network, tensorboard_verbose=0)
 model.fit({'input': X}, {'target': Y}, n_epoch=20,
            validation_set=({'input': testX}, {'target': testY}),
-           snapshot_step=100, show_metric=True, run_id='convnet_mnist')
+           snapshot_step=100, show_metric=True, run_id='cnn_clocker')
